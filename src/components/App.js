@@ -11,19 +11,32 @@ export default class App extends Component {
   constructor(props) {
    super(props);
    this.state = {
-    videos: []
+    videos: [],
+    selectedVideo: null
    };
 
    YTSearch({key: API_KEY, term: 'surfboards'}, (videos) => {
-    this.setState({ videos });
+    this.setState({
+     videos,
+     selectedVideo: videos[0]
+    });
    });
+
+   this.onVideoSelect = this.onVideoSelect.bind(this);
   }
+
+  onVideoSelect(selectedVideo) {
+   this.setState({selectedVideo});
+  }
+
   render() {
     return (
       <div>
        <SearchBar />
-       <VideoDetail video={this.state.videos[0]}/>
-       <VideoList videos={this.state.videos} />
+       <VideoDetail video={this.state.selectedVideo}/>
+       <VideoList
+        onVideoSelect={this.onVideoSelect}
+        videos={this.state.videos} />
       </div>
     );
   }
