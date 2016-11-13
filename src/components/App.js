@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import YTSearch from 'youtube-api-search';
+import _ from 'lodash';
 
 import SearchBar from '.././components/SearchBar';
 import VideoList from '.././components/VideoList';
@@ -8,41 +9,43 @@ import VideoDetail from '.././components/VideoDetail';
 const API_KEY = 'AIzaSyCm_53m3VzsEhZ5HJYFCyf0m-tzZ71B-70';
 
 export default class App extends Component {
-  constructor(props) {
-   super(props);
-   this.state = {
-    videos: [],
-    selectedVideo: null
-   };
+	constructor(props) {
+		super(props);
+		this.state = {
+			videos: [],
+			selectedVideo: null
+		};
 
-   this.onVideoSelect = this.onVideoSelect.bind(this);
-   this.videoSearch = this.videoSearch.bind(this);
-   
-   this.videoSearch('surfboards');
-  }
+		this.onVideoSelect = this.onVideoSelect.bind(this);
+		this.videoSearch = this.videoSearch.bind(this);
 
-  onVideoSelect(selectedVideo) {
-   this.setState({selectedVideo});
-  }
+		this.videoSearch('surfboards');
+	}
 
-  videoSearch(term) {
-   YTSearch({key: API_KEY, term}, (videos) => {
-    this.setState({
-     videos,
-     selectedVideo: videos[0]
-    });
-   });
-  }
+	onVideoSelect(selectedVideo) {
+		this.setState({selectedVideo});
+	}
 
-  render() {
-    return (
-      <div>
-       <SearchBar onSearchTermChange={this.videoSearch} />
-       <VideoDetail video={this.state.selectedVideo}/>
-       <VideoList
-        onVideoSelect={this.onVideoSelect}
-        videos={this.state.videos} />
-      </div>
-    );
-  }
+	videoSearch(term) {
+		YTSearch({
+			key: API_KEY,
+			term
+		}, (videos) => {
+			this.setState({videos, selectedVideo: videos[0]});
+		});
+	}
+
+	render() {
+  const videoSearch = _.debounce((term) => {
+   this.videoSearch(term)
+  }, 300);
+
+		return (
+			<div>
+				<SearchBar onSearchTermChange={videoSearch}/>
+				<VideoDetail video={this.state.selectedVideo}/>
+				<VideoList onVideoSelect={this.onVideoSelect} videos={this.state.videos}/>
+			</div>
+		);
+	}
 }
